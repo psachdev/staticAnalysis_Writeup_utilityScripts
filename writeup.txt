@@ -1,0 +1,69 @@
+
+VNC setup for amazon ec2 server:
+---------------------------------
+1. Command used to ssh into the server -  
+  ssh -i 20121217.pem ubuntu@ec2-54-242-241-90.compute-1.amazonaws.com
+2. VNC credentials -  
+  vnc password : p3opl3fi
+3. How to run the vncviewer from your laptop / desktop -
+  vncviewer ec2-54-242-241-90.compute-1.amazonaws.com:5901
+
+NOTE -  Security group of the instance on amazon ec2 is mobileapprivacy. 
+        Add any udp / tcp port you intent you use, only if its not already present
+
+How to share code across various instances:
+-------------------------------------------
+Used the distributed file system - NFS to share the code and the apks.
+Created NFS server on the one of the instances and exported couple of directories - code & apk_mounted.
+Mounted the exported shares on other instances using mount commands.
+
+  Commands required on NFS CLIENT & NFS SERVER:
+  ---------------------------------------------
+    NFS-CLIENT:
+    -----------
+      1. To mount the exported share :
+        sudo mount -t nfs -o addr=10.204.57.107,proto=tcp,port=2049 10.204.57.107:/home/ubuntu/apk_mounted /home/ubuntu/apk_mounted/
+      2. To instance portmap on nfs clients (needed only if this package is not installed)
+        sudo apt-get  install nfs-common portmap
+      3. To check if portmap is running on server or not 
+        rpcinfo -p ip-10-204-57-107
+
+   NFS-SERVER:
+  ------------
+      1. Services to be run on server :
+        sudo /etc/init.d/nfs-kernel-server start
+        sudo service portmap start
+        sudo /etc/init.d/portmap start
+      2. File in which to add new directories to be shared with nfs clients
+        sudo vim /etc/exports
+      3. If the above system doesn't start, you should check the system logs using the command -
+        sudo  dmesg | tail
+      4. Command required to install nfs server packages on only one instance (to be done only once)
+        sudo apt-get install nfs-kernel-server portmap nfs-common
+
+How I copied apks from local hard-disk to the amazon ec2:
+----------------------------------------------------------
+  1. Used rsync because sometimes the internet connection breaks while copying. You don't want to start the copy all over again. You want to resume from where you left. This command handles all that.
+  2. Command used -
+  rsync --ignore-existing --size-only -e "ssh -i 20121217.pem" -rv /media/My\ Passport/AndroidMaketCrawler/APKs/ ubuntu@ec2-107-22-1-221.compute-1.amazonaws.com:/home/ubuntu/apk_mounted
+
+Command used to run the python analyzer remotely:
+-------------------------------------------------
+  ssh -i 20121217.pem ubuntu@ec2-174-129-162-102.compute-1.amazonaws.com 'sh -x /home/ubuntu/code/staticAnalyzer/src/staticanalyzer/job.sh /home/ubuntu/apk_mounted/instance2/'
+
+  NOTE - 
+  ------
+  I wrote a shell script which will run the python script and restart the script if the python script crashes because of system overload. It will check the total number of apps and number of apps not yet analyzed. If both don't match it restarts the script.
+
+Amazon credentials :
+--------------------
+  ID: cmumobileappprivacy@gmail.com
+  password:p3opl3find3r
+
+How to create sql dump file of a database:
+-------------------------------------------
+    mysqldump -u root -p staticanalysisresults > instance3.sql
+
+    NOTE -
+    ------
+      This technique is used to transer the databases across machines. To avoid network latency.
