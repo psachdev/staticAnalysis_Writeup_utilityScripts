@@ -67,3 +67,30 @@ How to create sql dump file of a database:
     NOTE -
     ------
       This technique is used to transer the databases across machines. To avoid network latency.
+
+
+How to run webServer - 
+----------------------
+  1. Download the code using the github link.
+  2. Import the project into Eclipse.
+  3. Add Tomcat 6 apache server
+  4. Add the project to the server
+  5. Run the server
+  6. Type the following link in your browser :
+    http://127.0.0.1:8080/staticAnalysisResults/appSelectedPerm.do
+  7. Databases requirement - 
+    7.1 final
+      | Test_3rd_party_packages |
+      | Test_linkurl            |
+      | Test_permissionlist     |
+      | labeled3rdparty         |
+      | packageinfo             |
+      | uniquepermissionlist    |
+    7.2 staticanalysisresults
+      | appinfo                 |
+  8. External Libraries required - 
+    - Bootstrap
+    - BeanFactor 2.3.0
+    - Jstl 1.2
+    - Mysql-connector-java-5.1.22-bin.jar
+    
